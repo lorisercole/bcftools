@@ -1,0 +1,27 @@
+name: Build and test
+on: [push, pull_request]
+
+jobs:
+  build-test:
+    name: Build and test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: eessi/github-action-eessi@v3
+    - name: Build in EESSI + CMake
+      run: |
+        module load HTSlib GSL Perl buildenv
+    
+        mkdir build
+        ./configure --enable-libgsl --enable-htslib=$EBROOTHTSLIB --enable-perl-filters --prefix=$(pwd)/build
+        make -j
+        make install
+        make test
+      shell: bash
+
